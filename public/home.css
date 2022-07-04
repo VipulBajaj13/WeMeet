@@ -9,11 +9,11 @@ body{
 }
 
 .logo{
-    margin-left: 50px;
+    margin-left: 1em;
 }
 
 .logout{
-    margin-right: 50px;
+    margin-right: 1em;
     font-style: normal;
 }
 
