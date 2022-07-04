@@ -1,0 +1,23 @@
+{
+  "name": "gmeetclone",
+  "version": "1.0.0",
+  "description": "GmeetClone",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vipul Bajaj",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-session": "^2.0.0",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "mongoose": "^6.4.2",
+    "nodemon": "^2.0.18",
+    "passport": "^0.5.3",
+    "passport-google-oauth20": "^2.0.0",
+    "peer": "^0.6.1",
+    "socket.io": "^4.5.1",
+    "uuid": "^8.3.2"
+  }
+}

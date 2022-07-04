@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmeet</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js" ></script>
+    <script src="https://unpkg.com/peerjs@1.4.5/dist/peerjs.min.js"></script>
+    <script src="https://kit.fontawesome.com/f571172711.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const ROOM_ID = "<%= roomId %>";
+    </script>
+</head>
+<body>
+    <div class="main">
+        <div class="main_left">
+            <div class="main_videos">
+                <div id="video-grid">
+
+                </div>
+            </div>
+            <div class="main_controls">
+                <div class="main_controls_block">
+                    <span>Gmeet</span>
+                </div>
+                <div class="main_controls_block">
+                    <div onclick="muteUnmute()"class="main_controls_button main_mute_button">
+                        <i class="fa-solid fa-microphone"></i>
+                    </div>
+                    <div onclick ="playStop()"class="main_controls_button main_video_button">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div class="main_controls_button">
+                        <i class="fa-solid fa-display"></i>
+                    </div>
+                    <div class="main_controls_button">
+                        <i class="fa-solid fa-phone call"></i>
+                    </div>
+                </div>
+                <div class="main_controls_block">
+                    <div class="main_controls_button">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="main_controls_button">
+                        <i class="fa-regular fa-message"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main_right">
+            <div class="main_header">
+                <h2>Chat</h2>
+            </div>
+            <div class="main_chat_window">
+                <ul class="messages">
+
+                </ul>
+            </div>
+            <div class="main_message_container">
+                <input id="chat_message" type="text" placeholder="Type your message here...">
+            </div>
+        </div>
+    </div>
+    
+    <script src = "script.js"></script>
+</body>
+</html>
