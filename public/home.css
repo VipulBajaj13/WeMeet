@@ -4,18 +4,33 @@ body{
     background-color: rgb(2, 2, 69); 
 }
 
+
+
 .nav{
-    background-color: rgb(36, 118, 137);
+    display: flex;
+    justify-content:space-between;
+    padding: 10px 5vw;
+    height: 9vh;
+    background-color:  rgb(53, 131, 148);
+    color: #000;
+    box-shadow: none;
 }
 
 .logo{
-    margin-left: 1em;
+    margin-top:0.8em;
+    display:flex;
+    align-items: center;
+    text-align: start;
+    font-size: 2.2em;
+    color:white;
 }
 
 .logout{
-    margin-right: 1em;
+    display: block;
+    justify-content: right;
     font-style: normal;
-}
+} 
+
 
 .main{
     height: 100vh;
