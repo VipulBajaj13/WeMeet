@@ -23,6 +23,7 @@
             </a>
         </div>
     </div>
+    <canvas class="background"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"
         integrity="sha512-jq8sZI0I9Og0nnZ+CfJRnUzNSDKxr/5Bvha5bn7AHzTnRyxUfpUArMzfH++mwE/hb2efOo1gCAgI+1RMzf8F7g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -30,15 +31,16 @@
         integrity="sha512-BgV3bZfMmUklIZI+dP0SILdmQ0RBY2gxegFFyfgo4Ui56WhKF4Pny9LsV/l96jxDDA+2w47zAXA4IyHo2UT/Qg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/"></script>
+    <script>
+        window.onload = function () {
+            Particles.init({
+                selector: '.background',
+                color: '#ffffff',
+                connectParticles : true,
+                maxParticles : 40
+            });
+        };
+    </script>
 </body>
-<script>
-    window.onload = function () {
-        Particles.init({
-            selector: '.background',
-            color: '#ffffff',
-            connectParticles : true,
-            maxParticles : 40
-        });
-    };
-</script>
+
 </html>
