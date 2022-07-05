@@ -71,7 +71,7 @@ app.get('/home',authCheck,(req, res) => {
     res.render('home',{user : req.user});
 });
 
-const ROOM = uuidv4();
+var ROOM = uuidv4();
 app.get('/room',(req,res) => {
     res.redirect(`/${ROOM}`);
 })
