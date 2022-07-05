@@ -9,7 +9,7 @@ const passport = require('passport');
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
-const {v4:uuidv4} = require('uuid');
+const {v4:uuidV4} = require('uuid');
 const {ExpressPeerServer} = require('peer');
 const peerServer = ExpressPeerServer(server,{
     debug : true
@@ -71,7 +71,7 @@ app.get('/home',authCheck,(req, res) => {
     res.render('home',{user : req.user});
 });
 
-var ROOM = uuidv4();
+var ROOM = uuidV4();
 app.get('/room',(req,res) => {
     res.redirect(`/${ROOM}`);
 })
