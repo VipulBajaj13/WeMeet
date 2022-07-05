@@ -45,6 +45,7 @@ app.get('/login',  (req, res) => {
 
 app.get('/auth/google', passport.authenticate('google', {
     scope: ['profile'],
+    prompt:'select_account'
 }));
 
 app.get('/logout', (req,res) => {
