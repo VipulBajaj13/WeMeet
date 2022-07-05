@@ -3,13 +3,15 @@ const videoGrid = document.getElementById('video-grid');
 const myVideo = document.createElement('video');
 myVideo.muted = true;
 
+
+
 var peer = new Peer();
 
 let myVideoStream
 let count = 1;
 navigator.mediaDevices.getUserMedia({
     video : true,
-    audio : true
+    audio : false
 }).then (stream => {
     myVideoStream = stream;
     addVideoStream(myVideo,stream);
@@ -77,6 +79,65 @@ const scrollToBottom = () => {
     d.scrollTop(d.prop('scrollHeight'));
 }
 
+let canvas =  document.getElementById('canvas');
+
+canvas.height = 0.88*window.innerHeight;
+canvas.width = window.innerWidth;
+
+let ctx = canvas.getContext('2d');
+
+// let x;
+// let y;
+
+let mouseDown = false;
+
+window.onmousedown = (e) => {
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    socket.emit('down',{x,y});
+    mouseDown = true;
+}
+
+window.onmouseup = (e) => {
+    mouseDown = false;
+}
+
+socket.on('ondraw',({x,y}) => {
+    ctx.lineTo(x,y);
+    ctx.stroke();
+})
+
+socket.on('ondown',({x,y}) => {
+    ctx.moveTo(x,y);
+})
+
+window.onmousemove =  (e) => {
+    x = e.clientX;
+    y = e.clientY;
+
+    if(mouseDown){
+        socket.emit('draw',{x,y});
+        ctx.lineTo(x,y);
+        ctx.stroke();
+    }
+    
+}
+
+
+
+/*toggled active class*/
+const left = $('.main_left');
+const right = $('.main_right');
+$('.fa-message').click(function(){
+    left.toggleClass('active');
+    right.toggleClass('active');
+});
+
+const toggleWhiteboard = () => {
+    $('.whiteboard').toggleClass("bring-in");
+
+}
+
 const muteUnmute = () => {
     const enabled = myVideoStream.getAudioTracks()[0].enabled;
     if(enabled){
@@ -125,24 +186,3 @@ const setStopVideo = () => {
     document.querySelector('.main_video_button').innerHTML = html;
 }
 
-/*toggled active class*/
-const left = $('.main_left');
-const right = $('.main_right');
-$('.fa-message').click(function(){
-    left.toggleClass('active');
-    right.toggleClass('active');
-});
-
-
-// function resizeVideoWrappers(){
-//     var allVideos = $('.video');
-//     var rows = Math.ceil(count/3);
-//     var columns = Math.min(3,count);
-//     var width = `${95/columns}%`;
-//     var height = `${95/rows}%`;
-
-//     allVideos.forEach(item => {
-//         item.style.width = width;
-//         item.style.height = height;
-//     })
-// }

@@ -68,16 +68,27 @@ const authCheck = (req, res, next) => {
 };
 
 app.get('/home',authCheck,(req, res) => {
-    res.render('home.ejs',{user : req.user});
+    res.render('home',{user : req.user});
 });
 
+const ROOM = uuidv4();
 app.get('/room',(req,res) => {
-    res.redirect(`/${uuidv4()}`);
+    res.redirect(`/${ROOM}`);
 })
 
 app.get('/:room',(req,res) => {
     res.render('room',{roomId : req.params.room});
 })
+
+// app.get('/room/board',(req,res) => {
+//     res.redirect(`/${ROOM}/board`);
+// })
+
+// app.get('/:room/board',(req,res) => {
+//     res.render('board');
+// })
+
+let connectboard = [];
 
 io.on('connection',socket => {
     socket.on('join-room',(roomId,userId) => {
@@ -85,6 +96,29 @@ io.on('connection',socket => {
         socket.broadcast.to(roomId).emit('user-connected',userId);
         socket.on('message',message => {
             io.to(roomId).emit('createMessage',message);
+        })
+        connectboard.push(socket);
+        console.log(`${socket.id} has connected`);
+
+        socket.on('draw',(data) => {
+            connectboard.forEach(con => {
+                if(con.id !== socket.id){
+                    con.emit('ondraw',{x:data.x,y:data.y});
+                }
+            })
+        })
+
+        socket.on('down',(data) => {
+            connectboard.forEach(con => {
+                if(con.id !== socket.id){
+                    con.emit('ondown',{x:data.x,y:data.y})
+                }
+            })
+        })
+
+        socket.on('disconnect',(reason) => {
+            console.log(`${socket.id} is disconnected`)
+            connectboard = connectboard.filter((con) => con.id !== socket.id);
         })
     })
 })

@@ -27,12 +27,14 @@ video{
 
 .main{
     height : 100vh;
+    width:100vw;
     display : flex;
-    /*position: relative;*/
+    position:relative;
+    overflow:hidden;
 }
 
 .main_left{
-    /*position: relative;*/
+    position: relative;
     flex : 1;
     display : flex;
     flex-direction: column;
@@ -114,6 +116,8 @@ span{
 
 .main_right{
     display: flex;
+    position: relative;
+    z-index:2000;
     flex-direction:column;
     border-left: 1px solid #3D3D42;
 }
@@ -151,6 +155,18 @@ span{
     opacity: 0.5;
 }
 
+.whiteboard{
+    position: absolute;
+    width: 100%;
+    height: 88%;
+    background-color: rgb(255, 255, 255);
+    transform: translateX(100%);
+    z-index: 100;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1);
+    
+}
 
-
+.bring-in{
+    transform: translateX(0);
+}
 
