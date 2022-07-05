@@ -116,6 +116,11 @@ io.on('connection',socket => {
             })
         })
 
+        socket.on('endcall', () =>{
+            socket.to(roomId).emit('user-disconnected', userId);
+            
+        })
+
         socket.on('disconnect',(reason) => {
             console.log(`${socket.id} is disconnected`)
             connectboard = connectboard.filter((con) => con.id !== socket.id);

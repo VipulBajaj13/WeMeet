@@ -11,7 +11,7 @@ let myVideoStream
 let count = 1;
 navigator.mediaDevices.getUserMedia({
     video : true,
-    audio : false
+    audio : true
 }).then (stream => {
     myVideoStream = stream;
     addVideoStream(myVideo,stream);
@@ -36,11 +36,18 @@ peer.on('open',id =>{
 })
 
 
+const endCall = () => {
+        socket.emit('endcall');
+        // window.location = '/'
+}
+
+
 const connecToNewUser = (userId,stream) => {
     const call = peer.call(userId,stream);
     const video = document.createElement('video');
+    video.setAttribute('id',userId);
     call.on('stream',userVideoStream => {
-        addVideoStream(video,userVideoStream);
+        addVideoStream(video,userVideoStream,userId);
     })
 
     /*add next user to new row*/
@@ -72,6 +79,13 @@ $('html').keydown((e) => {
 
 socket.on('createMessage',message => {
     $('ul').append(`<li class="message"><b>User</b><br/>${message}</li>`);
+})
+
+socket.on('user-disconnected', userId => {
+    count--;
+    var userVideo = document.getElementById(userId);
+    userVideo.remove();
+
 })
 
 const scrollToBottom = () => {
