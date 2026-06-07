@@ -2,13 +2,13 @@
 
 module.exports = {
     google : {
-        clientID : '1015637827192-jmghrbtt9gic632gog455un4vcdhi020.apps.googleusercontent.com',
-        clientSecret : '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'
+        clientID : process.env.GOOGLE_CLIENT_ID,
+        clientSecret : process.env.GOOGLE_CLIENT_SECRET
     },
     mongodb : {
-        dbURI : 'mongodb+srv://VipulBajaj13:oWWh23J9hQVInqig@gmeetoauth.kfs7a.mongodb.net/?retryWrites=true&w=majority'
+        dbURI : process.env.MONGODB_URI
     },
     session : {
-        cookieKey : 'awesome'
+        cookieKey : process.env.COOKIE_KEY
     }
 };
