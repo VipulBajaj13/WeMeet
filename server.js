@@ -116,21 +116,15 @@ io.on('connection',socket => {
         connectboard.push(socket);
         console.log(`${socket.id} has connected`);
 
-        socket.on('draw',(data) => {
-            connectboard.forEach(con => {
-                if(con.id !== socket.id){
-                    con.emit('ondraw',{x:data.x,y:data.y,isErasing:data.isErasing,eraserSize:data.eraserSize});
-                }
-            })
-        })
+        socket.on('draw', (data) => {
+    // Broadcast drawing only to other participants in the same room
+    socket.broadcast.to(roomId).emit('ondraw', data);
+});
 
-        socket.on('down',(data) => {
-            connectboard.forEach(con => {
-                if(con.id !== socket.id){
-                    con.emit('ondown',{x:data.x,y:data.y,isErasing:data.isErasing,eraserSize:data.eraserSize})
-                }
-            })
-        })
+        socket.on('down', (data) => {
+    // Broadcast mouse‑down events only within the same room
+    socket.broadcast.to(roomId).emit('ondown', data);
+});
 
         socket.on('endcall', () => {
     console.log('endcall received from socket.id:', socket.id);
