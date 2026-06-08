@@ -75,14 +75,14 @@ const addVideoStream = (video,stream) => {
     videoGrid.append(video);
 }
 
-let text = $('input');
+let chatInput = $('#chat_message');
 
 $('html').keydown((e) => {
-    if(e.which == 13 && text.val().length !== 0){
-        socket.emit('message',text.val());
-        text.val('');
+    if (e.which === 13 && chatInput.val().trim().length !== 0) {
+        socket.emit('message', chatInput.val().trim());
+        chatInput.val('');
     }
-})
+});
 
 socket.on('createMessage',message => {
     $('ul').append(`<li class="message"><b>User</b><br/>${message}</li>`);
