@@ -18,6 +18,12 @@ navigator.mediaDevices.getUserMedia({
     addVideoStream(myVideo,stream);
 
     peer.on('call', call => {
+        console.log('Incoming call from', call.peer);
+
+        call.on('error', err => {
+            console.log('CALL ERROR', err);
+        });
+
           call.answer(stream);
           const video = document.createElement('video');
           // Set the ID so user-disconnected can find and remove this element
@@ -33,13 +39,19 @@ navigator.mediaDevices.getUserMedia({
 
     socket.on('user-connected',(userId) => {
         count++;
+        console.log('USER CONNECTED EVENT', userId);
         console.log(count);
         connecToNewUser(userId,stream);
     })
-})
 
-peer.on('open',id =>{
-    socket.emit('join-room',ROOM_ID,id);
+    peer.on('open',id =>{
+        console.log('PEER OPEN', id);
+        socket.emit('join-room',ROOM_ID,id);
+    })
+
+    peer.on('error', err => {
+        console.log('PEER ERROR', err);
+    });
 })
 
 
@@ -62,6 +74,9 @@ const endCall = () => {
 
 const connecToNewUser = (userId,stream) => {
     const call = peer.call(userId,stream);
+    call.on('error', err => {
+        console.log('CALL ERROR', err);
+    });
     const video = document.createElement('video');
     video.setAttribute('id',userId);
     call.on('stream',userVideoStream => {
@@ -73,11 +88,6 @@ const connecToNewUser = (userId,stream) => {
     })
 
     peers[userId] = call;
-
-    /*add next user to new row*/
-    if(count%3 === 0){
-        $('.video-grid').append(`<div class="break"></div>`);
-    }
 
     // resizeVideoWrappers();
 
