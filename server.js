@@ -105,7 +105,7 @@ io.on('connection',socket => {
         socket.on('draw',(data) => {
             connectboard.forEach(con => {
                 if(con.id !== socket.id){
-                    con.emit('ondraw',{x:data.x,y:data.y});
+                    con.emit('ondraw',{x:data.x,y:data.y,isErasing:data.isErasing,eraserSize:data.eraserSize});
                 }
             })
         })
@@ -113,7 +113,7 @@ io.on('connection',socket => {
         socket.on('down',(data) => {
             connectboard.forEach(con => {
                 if(con.id !== socket.id){
-                    con.emit('ondown',{x:data.x,y:data.y})
+                    con.emit('ondown',{x:data.x,y:data.y,isErasing:data.isErasing,eraserSize:data.eraserSize})
                 }
             })
         })

@@ -104,11 +104,24 @@ let ctx = canvas.getContext('2d');
 // let y;
 
 let mouseDown = false;
+let isErasing = false;
+let eraserSize = 20;
+
+$('#eraser-size').on('input', function() {
+    eraserSize = this.value;
+    if(isErasing) {
+        const cursor = document.getElementById('eraser-cursor');
+        cursor.style.width = eraserSize + 'px';
+        cursor.style.height = eraserSize + 'px';
+    }
+});
 
 window.onmousedown = (e) => {
+    ctx.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+    ctx.lineWidth = isErasing ? eraserSize : 2;
     ctx.beginPath();
     ctx.moveTo(x,y);
-    socket.emit('down',{x,y});
+    socket.emit('down',{x,y,isErasing,eraserSize});
     mouseDown = true;
 }
 
@@ -116,12 +129,16 @@ window.onmouseup = (e) => {
     mouseDown = false;
 }
 
-socket.on('ondraw',({x,y}) => {
+socket.on('ondraw',({x,y,isErasing,eraserSize}) => {
+    ctx.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+    ctx.lineWidth = isErasing ? eraserSize : 2;
     ctx.lineTo(x,y);
     ctx.stroke();
 })
 
-socket.on('ondown',({x,y}) => {
+socket.on('ondown',({x,y,isErasing,eraserSize}) => {
+    ctx.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+    ctx.lineWidth = isErasing ? eraserSize : 2;
     ctx.moveTo(x,y);
 })
 
@@ -129,8 +146,16 @@ window.onmousemove =  (e) => {
     x = e.clientX;
     y = e.clientY;
 
+    if(isErasing) {
+        const cursor = document.getElementById('eraser-cursor');
+        cursor.style.left = x + 'px';
+        cursor.style.top = y + 'px';
+    }
+
     if(mouseDown){
-        socket.emit('draw',{x,y});
+        ctx.globalCompositeOperation = isErasing ? "destination-out" : "source-over";
+        ctx.lineWidth = isErasing ? eraserSize : 2;
+        socket.emit('draw',{x,y,isErasing,eraserSize});
         ctx.lineTo(x,y);
         ctx.stroke();
     }
@@ -150,6 +175,24 @@ $('.fa-message').click(function(){
 const toggleWhiteboard = () => {
     $('.whiteboard').toggleClass("bring-in");
 
+}
+
+const toggleEraser = () => {
+    isErasing = !isErasing;
+    $('.eraser_button').toggleClass('active-eraser');
+    
+    if (isErasing) {
+        $('#eraser-controls').show();
+        $('.whiteboard').addClass('erasing');
+        const cursor = document.getElementById('eraser-cursor');
+        cursor.style.display = 'block';
+        cursor.style.width = eraserSize + 'px';
+        cursor.style.height = eraserSize + 'px';
+    } else {
+        $('#eraser-controls').hide();
+        $('.whiteboard').removeClass('erasing');
+        document.getElementById('eraser-cursor').style.display = 'none';
+    }
 }
 
 const muteUnmute = () => {

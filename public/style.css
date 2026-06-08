@@ -170,3 +170,22 @@ span{
     transform: translateX(0);
 }
 
+.active-eraser i {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.eraser-cursor {
+    position: absolute;
+    border: 1px solid black;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: none;
+    z-index: 1001;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.whiteboard.erasing canvas {
+    cursor: none;
+}
