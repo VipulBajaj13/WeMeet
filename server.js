@@ -73,22 +73,36 @@ app.get('/home',authCheck,(req, res) => {
     res.render('home',{user : req.user});
 });
 
-var ROOM = uuidV4();
-app.get('/room',(req,res) => {
-    res.redirect(`/${ROOM}`);
-})
+// Remove global ROOM. Each call to /room now generates a fresh UUID.
+app.get('/room', (req, res) => {
+    const freshRoomId = uuidV4(); // unique meeting ID for this request
+    res.redirect(`/${freshRoomId}`);
+});
 
-app.get('/:room',(req,res) => {
-    res.render('room',{roomId : req.params.room});
-})
+// Optional endpoint to just return a fresh meeting link as JSON.
+app.get('/new', (req, res) => {
+    const freshRoomId = uuidV4();
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const link = `${baseUrl}/${freshRoomId}`;
+    res.json({ link });
+});
 
-// app.get('/room/board',(req,res) => {
+app.get('/:room', (req, res) => {
+    // Render the room page for the specific meeting ID.
+    res.render('room', { roomId: req.params.room });
+});
+
+// Optional endpoint to just return a fresh meeting link as JSON.
+// This is handy for a "Copy link" button without doing a redirect.
+
+
+// (The commented board routes are kept for possible future expansion.)
+// app.get('/room/board', (req, res) => {
 //     res.redirect(`/${ROOM}/board`);
-// })
-
-// app.get('/:room/board',(req,res) => {
+// });
+// app.get('/:room/board', (req, res) => {
 //     res.render('board');
-// })
+// });
 
 let connectboard = [];
 

@@ -20,9 +20,23 @@
             <p><center>Enjoy Video Calling </br> with</br> Friends,Family and anyone.</center></p>
         </div>
         <div class="col s12 m6 offset-m3 center-align googlebtn ">
-            <a class="oauth-container btn darken-4 rgb(20, 83, 97) white-text" href="/room" style="text-transform:none">
-                Start new meet
-            </a>
+<button id="new-meet" class="oauth-container btn darken-4 rgb(20, 83, 97) white-text" style="text-transform:none">Start new meet</button>
+<script>
+  document.getElementById('new-meet').addEventListener('click', async () => {
+    try {
+      const resp = await fetch('/new');
+      const data = await resp.json();
+      const link = data.link;
+
+      // Open the meeting in a new tab/window
+      window.open(link, '_blank');
+
+    } catch (err) {
+      console.error('Failed to create meeting:', err);
+      console.error('Failed to create meeting:', err);
+    }
+  });
+</script>
         </div>
         <canvas class="background"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"
