@@ -4,9 +4,6 @@ const myVideo = document.createElement('video');
 myVideo.muted = true;
 
 
-
-var peer = new Peer();
-
 let myVideoStream
 let count = 1;
 const peers = {};
@@ -16,6 +13,19 @@ navigator.mediaDevices.getUserMedia({
 }).then (stream => {
     myVideoStream = stream;
     addVideoStream(myVideo,stream);
+
+    peer = new Peer(undefined, {
+        host: window.location.hostname,
+        port: window.location.port ? Number(window.location.port) : (window.location.protocol === 'https:' ? 443 : 80),
+        path: '/peerjs',
+        secure: window.location.protocol === 'https:',
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        }
+    });
 
     peer.on('call', call => {
         console.log('Incoming call from', call.peer);

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require("express");
+const path = require('path');  // <-- ADD THIS LINE
 // const authRoutes = require('./routes/auth-routes');
 // const homeRoutes = require('./routes/home-routes');
 const passportSetup = require('./config/passport-setup');
@@ -56,17 +57,28 @@ app.get('/logout', (req,res) => {
 });
 
 app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => {
-    username = req.user.username
-    res.redirect('/home');
-    
+    // Redirect back to the room they originally tried to join, or /home if no saved URL
+    const redirectTo = req.session && req.session.returnTo ? req.session.returnTo : '/home';
+    if (req.session) {
+        delete req.session.returnTo;
+    }
+    res.redirect(redirectTo);
 });
 
+// FIXED: authCheck now saves the room URL before redirecting to login
 const authCheck = (req, res, next) => {
-    if(!req.user){
-        res.redirect('/login');
-    } else {
-        next();
+    // Ignore static assets (files with extensions like .ico, .css, .js)
+    const ext = path.extname(req.path);
+    if (ext) {
+        return next();
     }
+
+    if (!req.user) {
+        // Save where they were trying to go so we can redirect them back after auth
+        req.session.returnTo = req.originalUrl || '/';
+        return res.redirect('/auth/google');
+    }
+    next();
 };
 
 app.get('/home',authCheck,(req, res) => {
