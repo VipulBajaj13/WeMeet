@@ -9,6 +9,7 @@ var peer = new Peer();
 
 let myVideoStream
 let count = 1;
+const peers = {};
 navigator.mediaDevices.getUserMedia({
     video : true,
     audio : true
@@ -50,6 +51,12 @@ const connecToNewUser = (userId,stream) => {
         addVideoStream(video,userVideoStream,userId);
     })
 
+    call.on('close', () => {
+        video.remove();
+    })
+
+    peers[userId] = call;
+
     /*add next user to new row*/
     if(count%3 === 0){
         $('.video-grid').append(`<div class="break"></div>`);
@@ -82,10 +89,15 @@ socket.on('createMessage',message => {
 })
 
 socket.on('user-disconnected', userId => {
+    console.log('user-disconnected event received for userId:', userId);
     count--;
     var userVideo = document.getElementById(userId);
-    userVideo.remove();
-
+    if(userVideo) {
+        userVideo.remove();
+    }
+    if(peers[userId]) {
+        peers[userId].close();
+    }
 })
 
 const scrollToBottom = () => {

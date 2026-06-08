@@ -118,13 +118,14 @@ io.on('connection',socket => {
             })
         })
 
-        socket.on('endcall', () =>{
-            socket.to(roomId).emit('user-disconnected', userId);
-            
-        })
+        socket.on('endcall', () => {
+    console.log('endcall received from socket.id:', socket.id);
+    socket.to(roomId).emit('user-disconnected', userId);
+});
 
         socket.on('disconnect',(reason) => {
             console.log(`${socket.id} is disconnected`)
+            socket.to(roomId).emit('user-disconnected', userId);
             connectboard = connectboard.filter((con) => con.id !== socket.id);
         })
     })
