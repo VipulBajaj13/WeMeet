@@ -87,9 +87,9 @@ app.get('/new', (req, res) => {
     res.json({ link });
 });
 
-app.get('/:room', (req, res) => {
-    // Render the room page for the specific meeting ID.
-    res.render('room', { roomId: req.params.room });
+app.get('/:room', authCheck, (req, res) => {
+  const userName = req.user && req.user.username ? req.user.username : 'Anonymous';
+  res.render('room', { roomId: req.params.room, user: userName });
 });
 
 // Optional endpoint to just return a fresh meeting link as JSON.

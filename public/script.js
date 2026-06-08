@@ -20,9 +20,15 @@ navigator.mediaDevices.getUserMedia({
     peer.on('call', call => {
           call.answer(stream);
           const video = document.createElement('video');
-          call.on('stream',userVideoStream => {
-            addVideoStream(video,userVideoStream);
-        })
+          // Set the ID so user-disconnected can find and remove this element
+          video.setAttribute('id', call.peer);
+          call.on('stream', userVideoStream => {
+            addVideoStream(video, userVideoStream);
+          });
+          call.on('close', () => {
+            video.remove();
+          });
+          peers[call.peer] = call;
     })
 
     socket.on('user-connected',(userId) => {
@@ -38,9 +44,20 @@ peer.on('open',id =>{
 
 
 const endCall = () => {
-        socket.emit('endcall');
-        // window.location = '/'
-}
+    // Notify server that this user is leaving
+    socket.emit('endcall');
+    // Close all peer connections
+    for (const id in peers) {
+        if (peers[id]) peers[id].close();
+    }
+    // Give the server a moment to process the message before we fully disconnect
+    setTimeout(() => {
+        // Close the socket connection
+        socket.disconnect();
+        // Finally navigate away
+        window.location = '/home';
+    }, 1000);
+};
 
 
 const connecToNewUser = (userId,stream) => {
@@ -79,14 +96,17 @@ let chatInput = $('#chat_message');
 
 $('html').keydown((e) => {
     if (e.which === 13 && chatInput.val().trim().length !== 0) {
-        socket.emit('message', chatInput.val().trim());
+        // Emit both username and text
+        socket.emit('message', { user: USER_NAME, text: chatInput.val().trim() });
         chatInput.val('');
     }
 });
 
-socket.on('createMessage',message => {
-    $('ul').append(`<li class="message"><b>User</b><br/>${message}</li>`);
-})
+socket.on('createMessage',data => {
+    const displayName = data.user || 'Anonymous';
+    const text = data.text || '';
+    $('ul').append(`<li class="message"><b>${displayName}</b><br/>${text}</li>`);
+});
 
 socket.on('user-disconnected', userId => {
     console.log('user-disconnected event received for userId:', userId);
