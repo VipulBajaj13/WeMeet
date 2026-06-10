@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const passportSetup = require('./config/passport-setup');
 const mongoose = require('mongoose');
+const Transcript = require('./models/transcript');
 const keys = require('./config/keys');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
@@ -13,6 +14,7 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const {v4:uuidV4} = require('uuid');
 const {ExpressPeerServer} = require('peer');
+const Groq = require('groq-sdk');
 
 const peerServer = ExpressPeerServer(server, {
     debug: true
@@ -28,6 +30,10 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
+});
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -108,11 +114,21 @@ app.get('/:room', authCheck, (req, res) => {
     res.render('room', { roomId: req.params.room, user: userName });
 });
 
+async function transcribeAudio(filePath) {
+    const transcription = await groq.audio.transcriptions.create({
+        file: fs.createReadStream(filePath),
+        model: "whisper-large-v3",
+        language: "en"
+    });
+
+    return transcription.text;
+}
+
 app.post('/transcribe', (req, res, next) => {
     const roomId = req.query.roomId || 'unknown-room';
     const userName = req.query.userName || 'anonymous';
 
-    upload.single('audio')(req, res, (err) => {
+    upload.single('audio')(req, res, async (err) => {
         // ignore 'Request aborted' runtime aborts; if no req.file then handle later
         if (err && err.message !== 'Request aborted' && !req.file) {
             console.error('Upload error:', err);
@@ -159,6 +175,64 @@ app.post('/transcribe', (req, res, next) => {
             console.log('Room:', roomId);
             console.log('User:', userName);
             console.log('Final file:', newPath);
+
+            const transcriptText = await transcribeAudio(newPath);
+
+            console.log('TRANSCRIPT:');
+            console.log(transcriptText);
+
+            const completion = await groq.chat.completions.create({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    {
+                        role: "system",
+                        content: `
+You are a meeting notes generator.
+
+Your job is ONLY to analyze the transcript.
+
+Never ask questions.
+Never continue the conversation.
+Never act like a chatbot.
+
+If transcript is too short, return:
+
+SUMMARY:
+Insufficient meeting content.
+
+ACTION ITEMS:
+- None
+
+Otherwise return:
+
+SUMMARY:
+<meeting summary>
+
+ACTION ITEMS:
+- item 1
+- item 2
+`
+                    },
+                    {
+                        role: "user",
+                        content: transcriptText
+                    }
+                ]
+            });
+
+            const aiResponse =
+                completion.choices[0].message.content;
+
+            console.log('AI RESPONSE:');
+            console.log(aiResponse);
+
+            await Transcript.create({
+                roomId,
+                user: userName,
+                transcript: transcriptText
+            });
+
+            console.log('Transcript saved to MongoDB');
 
             res.json({
                 success: true,
