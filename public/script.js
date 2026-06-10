@@ -16,7 +16,24 @@ navigator.mediaDevices.getUserMedia({
     myVideoStream = stream;
     addVideoStream(myVideo,stream);
 
-    mediaRecorder = new MediaRecorder(stream);
+    // 🎯 AUDIO GAIN FIX START
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(stream);
+
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 2.0; // try 1.5 → 2.5
+
+    const destination = audioContext.createMediaStreamDestination();
+
+    source.connect(gainNode);
+    gainNode.connect(destination);
+
+    const processedStream = destination.stream;
+    // 🎯 AUDIO GAIN FIX END
+
+    mediaRecorder = new MediaRecorder(processedStream, {
+        mimeType: 'audio/webm;codecs=opus'
+    });
 
     mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
