@@ -6,6 +6,8 @@ myVideo.muted = true;
 
 let myVideoStream
 let count = 1;
+let mediaRecorder;
+let audioChunks = [];
 const peers = {};
 navigator.mediaDevices.getUserMedia({
     video : true,
@@ -13,6 +15,44 @@ navigator.mediaDevices.getUserMedia({
 }).then (stream => {
     myVideoStream = stream;
     addVideoStream(myVideo,stream);
+
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+            audioChunks.push(event.data);
+        }
+    };
+
+    mediaRecorder.onstop = async () => {
+
+        try {
+
+            const audioBlob = new Blob(audioChunks, {
+                type: 'audio/webm'
+            });
+
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'meeting.webm');
+
+            const response = await fetch(`/transcribe?roomId=${encodeURIComponent(ROOM_ID)}&userName=${encodeURIComponent(USER_NAME)}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            console.log(result);
+            window.location = '/home';
+
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    mediaRecorder.start();
+
+    console.log('Recording started');
 
     peer = new Peer(undefined, {
         host: window.location.hostname,
@@ -89,17 +129,20 @@ navigator.mediaDevices.getUserMedia({
 
 
 const endCall = () => {
-    // Notify server that this user is leaving
+
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        return;
+    }
+
     socket.emit('endcall');
-    // Close all peer connections
+
     for (const id in peers) {
         if (peers[id]) peers[id].close();
     }
-    // Give the server a moment to process the message before we fully disconnect
+
     setTimeout(() => {
-        // Close the socket connection
         socket.disconnect();
-        // Finally navigate away
         window.location = '/home';
     }, 1000);
 };
