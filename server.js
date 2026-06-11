@@ -237,6 +237,28 @@ ACTION ITEMS:
     });
 });
 
+app.get('/groq-test', async (req, res) => {
+    try {
+        const response = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                {
+                    role: "user",
+                    content: "Say hello"
+                }
+            ]
+        });
+
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            status: err.status,
+            message: err.message
+        });
+    }
+});
+
 let connectboard = [];
 
 io.on('connection', socket => {
