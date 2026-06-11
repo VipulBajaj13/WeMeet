@@ -84,25 +84,30 @@ navigator.mediaDevices.getUserMedia({
                     urls: "stun:stun.relay.metered.ca:80",
                 },
                 {
-                    urls: "turn:global.relay.metered.ca:80",
-                    username: "61a48bde959b8b9a05ffa29a",
-                    credential: "Fp5Rx4AS346A0Ydh",
+                    urls: "free.expressturn.com:3478",
+                    username: "000000002096479454",
+                    credential: "q8owKcd1mFzx9dXifGjiBED2Xo0="
                 },
-                {
-                    urls: "turn:global.relay.metered.ca:80?transport=tcp",
-                    username: "61a48bde959b8b9a05ffa29a",
-                    credential: "Fp5Rx4AS346A0Ydh",
-                },
-                {
-                    urls: "turn:global.relay.metered.ca:443",
-                    username: "61a48bde959b8b9a05ffa29a",
-                    credential: "Fp5Rx4AS346A0Ydh",
-                },
-                {
-                    urls: "turns:global.relay.metered.ca:443?transport=tcp",
-                    username: "61a48bde959b8b9a05ffa29a",
-                    credential: "Fp5Rx4AS346A0Ydh",
-                },
+                // {
+                //     urls: "turn:global.relay.metered.ca:80",
+                //     username: "61a48bde959b8b9a05ffa29a",
+                //     credential: "Fp5Rx4AS346A0Ydh",
+                // },
+                // {
+                //     urls: "turn:global.relay.metered.ca:80?transport=tcp",
+                //     username: "61a48bde959b8b9a05ffa29a",
+                //     credential: "Fp5Rx4AS346A0Ydh",
+                // },
+                // {
+                //     urls: "turn:global.relay.metered.ca:443",
+                //     username: "61a48bde959b8b9a05ffa29a",
+                //     credential: "Fp5Rx4AS346A0Ydh",
+                // },
+                // {
+                //     urls: "turns:global.relay.metered.ca:443?transport=tcp",
+                //     username: "61a48bde959b8b9a05ffa29a",
+                //     credential: "Fp5Rx4AS346A0Ydh",
+                // },
             ]
         }
     });
