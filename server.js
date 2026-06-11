@@ -35,12 +35,6 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY
-);
-
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
@@ -57,23 +51,6 @@ app.use(passport.session());
 
 mongoose.connect(keys.mongodb.dbURI, () => {
     console.log('connected to mongodb');
-});
-
-app.get('/gemini-test', async (req, res) => {
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash"
-    });
-
-    const result = await model.generateContent(
-      "Say hello"
-    );
-
-    res.send(result.response.text());
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
-  }
 });
 
 app.get('/', (req, res) => {
