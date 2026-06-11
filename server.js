@@ -109,6 +109,28 @@ app.get('/new', (req, res) => {
     res.json({ link });
 });
 
+app.get('/groq-test', async (req, res) => {
+    try {
+        const response = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                {
+                    role: "user",
+                    content: "Say hello"
+                }
+            ]
+        });
+
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            status: err.status,
+            message: err.message
+        });
+    }
+});
+
 app.get('/:room', authCheck, (req, res) => {
     const userName = req.user && req.user.username ? req.user.username : 'Anonymous';
     res.render('room', { roomId: req.params.room, user: userName });
@@ -235,28 +257,6 @@ ACTION ITEMS:
             res.status(500).json({ success: false, error: err.message });
         }
     });
-});
-
-app.get('/groq-test', async (req, res) => {
-    try {
-        const response = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-                {
-                    role: "user",
-                    content: "Say hello"
-                }
-            ]
-        });
-
-        res.json(response);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            status: err.status,
-            message: err.message
-        });
-    }
 });
 
 let connectboard = [];
