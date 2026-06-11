@@ -10,6 +10,10 @@ let mediaRecorder;
 let audioChunks = [];
 let isEndingMeeting = false;
 const peers = {};
+let recordingStoppedPromiseResolve;
+let recordingStoppedPromise = new Promise((resolve) => {
+    recordingStoppedPromiseResolve = resolve;
+});
 
 navigator.mediaDevices.getUserMedia({
     video : true,
@@ -45,36 +49,38 @@ navigator.mediaDevices.getUserMedia({
 
     mediaRecorder.onstop = async () => {
 
-    try {
+        try {
 
-        const audioBlob = new Blob(audioChunks, {
-            type: 'audio/webm'
-        });
+            const audioBlob = new Blob(audioChunks, {
+                type: 'audio/webm'
+            });
 
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'meeting.webm');
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'meeting.webm');
 
-        const response = await fetch(
-            `/transcribe?roomId=${encodeURIComponent(ROOM_ID)}&userName=${encodeURIComponent(USER_NAME)}`,
-            {
-                method: 'POST',
-                body: formData
+            const response = await fetch(
+                `/transcribe?roomId=${encodeURIComponent(ROOM_ID)}&userName=${encodeURIComponent(USER_NAME)}`,
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+
+            const result = await response.json();
+            console.log(result);
+
+            audioChunks = [];
+
+            // 👇 ONLY redirect if normal leave (not host end flow)
+            if (!isEndingMeeting) {
+                window.location = '/home';
             }
-        );
 
-        const result = await response.json();
-        console.log(result);
+            recordingStoppedPromiseResolve();
 
-        audioChunks = [];
-
-        // 👇 ONLY redirect if normal leave (not host end flow)
-        if (!isEndingMeeting) {
-            window.location = '/home';
+        } catch (err) {
+            console.error(err);
         }
-
-    } catch (err) {
-        console.error(err);
-    }
     };
 
     mediaRecorder.start();
@@ -181,8 +187,9 @@ const endMeeting = async () => {
 
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
-        return; // wait for onstop first
     }
+
+    await recordingStoppedPromise;
 
     // fallback safety (if already stopped)
     await fetch('/generate-summary', {

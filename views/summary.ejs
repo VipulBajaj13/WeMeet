@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meeting Summary</title>
+    <link rel="stylesheet" href="/summary.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📊 Meeting Summary</h1>
+
+    <div class="room-info">
+        Room ID: <%= roomId %>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="card">
+        <h2>📝 Summary</h2>
+
+        <ul>
+            <% summary.forEach(item => { %>
+                <li><%= item %></li>
+            <% }) %>
+        </ul>
+    </div>
+
+    <!-- ACTION ITEMS -->
+    <div class="card">
+        <h2>✅ Action Items</h2>
+
+        <ul>
+            <% actionItems.forEach(item => { %>
+                <li>
+                    <input type="checkbox" />
+                    <%= item %>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>

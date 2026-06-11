@@ -212,25 +212,21 @@ Return exactly in this format:
 });
 
 app.get('/meeting-summary/:roomId', async (req, res) => {
-    try {
 
-        const summary =
-            await MeetingSummary.findOne({
-                roomId: req.params.roomId
-            });
+    const roomId = req.params.roomId;
 
-        res.json({
-            success: true,
-            summary
-        });
+    const summaryDoc =
+        await MeetingSummary.findOne({ roomId });
 
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            error: err.message
-        });
+    if (!summaryDoc) {
+        return res.send("No summary found");
     }
+
+    res.render('summary', {
+        roomId,
+        summary: summaryDoc.summary,
+        actionItems: summaryDoc.actionItems
+    });
 });
 
 app.get('/:room', authCheck, (req, res) => {
