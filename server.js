@@ -187,30 +187,22 @@ app.post('/transcribe', (req, res, next) => {
                     {
                         role: "system",
                         content: `
-You are a meeting notes generator.
+You are an expert meeting assistant.
 
-Your job is ONLY to analyze the transcript.
+Rules:
+- Do NOT say "insufficient content" unless truly empty
+- Clean and correct grammar
+- Understand Hinglish (Hindi + English mix)
+- Preserve meaning even if speech is broken
+- Infer context from partial sentences
 
-Never ask questions.
-Never continue the conversation.
-Never act like a chatbot.
-
-If transcript is too short, return:
-
-SUMMARY:
-Insufficient meeting content.
-
-ACTION ITEMS:
-- None
-
-Otherwise return:
+Return STRICT format:
 
 SUMMARY:
-<meeting summary>
+- 3-5 bullet points
 
 ACTION ITEMS:
-- item 1
-- item 2
+- Clear tasks with owner if mentioned
 `
                     },
                     {
