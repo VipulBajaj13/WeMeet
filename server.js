@@ -169,7 +169,14 @@ Return exactly in this format:
     "owner: task",
     "owner: task"
   ]
-}                    
+}           
+
+IMPORTANT:
+If a participant name appears in the transcript, copy it character-for-character.
+Do not fix spelling.
+Do not transliterate.
+Do not infer a more likely name.
+Do not replace usernames with real names.
 `
                 },
                 {
