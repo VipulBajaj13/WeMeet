@@ -172,11 +172,16 @@ Return exactly in this format:
 }           
 
 IMPORTANT:
-If a participant name appears in the transcript, copy it character-for-character.
-Do not fix spelling.
-Do not transliterate.
-Do not infer a more likely name.
-Do not replace usernames with real names.
+- If a participant name appears in the transcript, copy it character-for-character.
+- Do not fix spelling.
+- Do not transliterate.
+- Do not infer a more likely name.
+- Do not replace usernames with real names.
+- The speaker of a sentence is not necessarily the owner of a task.
+- Determine who is responsible for the action based on the meaning of the conversation.
+- If one participant assigns a task to another participant, the assignee should be the owner.
+- Only use the speaker as the owner when the speaker is clearly committing to doing the task themselves.
+- If the owner cannot be determined confidently, use "Unknown".
 `
                 },
                 {
