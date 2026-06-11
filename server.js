@@ -6,6 +6,8 @@ const path = require('path');
 const passportSetup = require('./config/passport-setup');
 const mongoose = require('mongoose');
 const Transcript = require('./models/transcript');
+const MeetingSummary =
+    require('./models/meetingSummary');
 const keys = require('./config/keys');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
@@ -19,6 +21,8 @@ const Groq = require('groq-sdk');
 const peerServer = ExpressPeerServer(server, {
     debug: true
 });
+
+const roomHosts = {};
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -99,6 +103,7 @@ app.get('/home', authCheck, (req, res) => {
 
 app.get('/room', (req, res) => {
     const freshRoomId = uuidV4();
+    roomHosts[roomId] = req.user._id;
     res.redirect(`/${freshRoomId}`);
 });
 
@@ -109,9 +114,129 @@ app.get('/new', (req, res) => {
     res.json({ link });
 });
 
+app.post('/generate-summary', async (req, res) => {
+    try {
+
+        const { roomId } = req.body;
+
+        const transcripts =
+            await Transcript.find({ roomId });
+
+        console.log('Found transcripts:',
+            transcripts.length);
+
+        const combinedTranscript = transcripts
+            .map(t => `${t.user}: ${t.transcript}`)
+            .join('\n\n');
+
+        console.log('COMBINED TRANSCRIPT:\n');
+        console.log(combinedTranscript);
+
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+                {
+                    role: "system",
+                    content: `
+You are an expert meeting assistant.
+
+Analyze the meeting transcript and return ONLY valid JSON.
+
+Rules:
+- No markdown
+- No explanations
+- No code blocks
+- No text outside JSON
+- Understand English, Hindi and Hinglish
+- Extract important discussion points
+- Extract actionable tasks and owners if mentioned
+- Do NOT say "insufficient content" unless truly empty
+- Clean and correct grammar
+- Preserve meaning even if speech is broken
+- Infer context from partial sentences
+- In summary, return 3-5 bullet points
+- In actionItems, clear tasks with owner if mentioned
+
+Return exactly in this format:
+
+{
+  "summary": [
+    "point 1",
+    "point 2",
+    "point 3"
+  ],
+  "actionItems": [
+    "owner: task",
+    "owner: task"
+  ]
+}                    
+`
+                },
+                {
+                    role: "user",
+                    content: combinedTranscript
+                }
+            ]
+        });
+
+        const aiResponse =
+            completion.choices[0].message.content;
+
+        const parsed = JSON.parse(aiResponse);
+
+        const summary = parsed.summary || [];
+
+        const actionItems = parsed.actionItems || [];
+
+        await MeetingSummary.create({
+            roomId,
+            summary,
+            actionItems
+        });
+
+        res.json({
+            success: true,
+            summary,
+            actionItems
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+app.get('/meeting-summary/:roomId', async (req, res) => {
+    try {
+
+        const summary =
+            await MeetingSummary.findOne({
+                roomId: req.params.roomId
+            });
+
+        res.json({
+            success: true,
+            summary
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
 app.get('/:room', authCheck, (req, res) => {
     const userName = req.user && req.user.username ? req.user.username : 'Anonymous';
-    res.render('room', { roomId: req.params.room, user: userName });
+    const isHost = roomHosts[req.params.room] === req.user._id;
+    res.render('room', { roomId: req.params.room, user: userName, isHost });
 });
 
 async function transcribeAudio(filePath) {

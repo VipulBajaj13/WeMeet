@@ -13,6 +13,7 @@
     <script>
         const ROOM_ID = "<%= roomId %>";
         const USER_NAME = "<%= user %>";
+        const IS_HOST = "<%= isHost %>";
     </script>
 </head>
 <body>
@@ -45,8 +46,11 @@
                     <div class="main_controls_button">
                         <i class="fa-solid fa-display"></i>
                     </div>
-                    <div onclick="endCall()"class="main_controls_button">
-                        <a href="/home"><i class="fa-solid fa-phone call"></i></a>
+                    <div onclick="leaveMeeting()" class="main_controls_button">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                    <div id="end-meeting-btn" onclick="endMeeting()" class="main_controls_button" style="display:none;">
+                        <i class="fa-solid fa-phone call"></i>
                     </div>
                 </div>
                 <div class="main_controls_block">

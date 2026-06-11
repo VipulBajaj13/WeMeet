@@ -14,16 +14,6 @@ const transcriptSchema = new mongoose.Schema({
     transcript: {
         type: String,
         required: true
-    },
-
-    summary: {
-        type: String,
-        default: ''
-    },
-
-    actionItems: {
-        type: [String],
-        default: []
     }
 
 }, {

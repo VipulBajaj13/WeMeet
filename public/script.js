@@ -8,7 +8,9 @@ let myVideoStream
 let count = 1;
 let mediaRecorder;
 let audioChunks = [];
+let isEndingMeeting = false;
 const peers = {};
+
 navigator.mediaDevices.getUserMedia({
     video : true,
     audio : true
@@ -43,28 +45,36 @@ navigator.mediaDevices.getUserMedia({
 
     mediaRecorder.onstop = async () => {
 
-        try {
+    try {
 
-            const audioBlob = new Blob(audioChunks, {
-                type: 'audio/webm'
-            });
+        const audioBlob = new Blob(audioChunks, {
+            type: 'audio/webm'
+        });
 
-            const formData = new FormData();
-            formData.append('audio', audioBlob, 'meeting.webm');
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'meeting.webm');
 
-            const response = await fetch(`/transcribe?roomId=${encodeURIComponent(ROOM_ID)}&userName=${encodeURIComponent(USER_NAME)}`, {
+        const response = await fetch(
+            `/transcribe?roomId=${encodeURIComponent(ROOM_ID)}&userName=${encodeURIComponent(USER_NAME)}`,
+            {
                 method: 'POST',
                 body: formData
-            });
+            }
+        );
 
-            const result = await response.json();
-            console.log(result);
+        const result = await response.json();
+        console.log(result);
+
+        audioChunks = [];
+
+        // 👇 ONLY redirect if normal leave (not host end flow)
+        if (!isEndingMeeting) {
             window.location = '/home';
-
-
-        } catch (err) {
-            console.error(err);
         }
+
+    } catch (err) {
+        console.error(err);
+    }
     };
 
     mediaRecorder.start();
@@ -84,7 +94,7 @@ navigator.mediaDevices.getUserMedia({
                     urls: "stun:stun.relay.metered.ca:80",
                 },
                 {
-                    urls: "free.expressturn.com:3478",
+                    urls: "turn:free.expressturn.com:3478",
                     username: "000000002096479454",
                     credential: "q8owKcd1mFzx9dXifGjiBED2Xo0="
                 },
@@ -149,13 +159,37 @@ navigator.mediaDevices.getUserMedia({
     });
 })
 
+const leaveMeeting = () => {
 
-const endCall = () => {
+    isEndingMeeting = false;
 
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
-        return;
     }
+
+    for (const id in peers) {
+        if (peers[id]) peers[id].close();
+    }
+
+    socket.disconnect();
+    window.location = '/home';
+};
+
+const endMeeting = async () => {
+
+    isEndingMeeting = true;
+
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        return; // wait for onstop first
+    }
+
+    // fallback safety (if already stopped)
+    await fetch('/generate-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: ROOM_ID })
+    });
 
     socket.emit('endcall');
 
@@ -163,10 +197,7 @@ const endCall = () => {
         if (peers[id]) peers[id].close();
     }
 
-    setTimeout(() => {
-        socket.disconnect();
-        window.location = '/home';
-    }, 1000);
+    window.location = `/meeting-summary/${ROOM_ID}`;
 };
 
 
@@ -382,4 +413,14 @@ const setStopVideo = () => {
 
     document.querySelector('.main_video_button').innerHTML = html;
 }
+
+window.addEventListener('load', () => {
+
+    if (typeof IS_HOST !== 'undefined' && IS_HOST) {
+        const btn = document.getElementById('end-meeting-btn');
+        if (btn) {
+            btn.style.display = 'block';
+        }
+    }
+});
 
