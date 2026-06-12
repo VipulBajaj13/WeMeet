@@ -60,7 +60,8 @@ video{
     display : flex;
     justify-content: center;
     align-items: flex-start;
-    overflow-y: auto;
+    overflow: hidden;
+    position: relative;
 }
 
 .main_controls{

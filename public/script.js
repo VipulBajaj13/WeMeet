@@ -273,8 +273,10 @@ const scrollToBottom = () => {
 
 let canvas =  document.getElementById('canvas');
 
-canvas.height = 0.88*window.innerHeight;
-canvas.width = window.innerWidth;
+const whiteboard = document.querySelector('.whiteboard');
+
+canvas.width = whiteboard.clientWidth;
+canvas.height = whiteboard.clientHeight;
 
 let ctx = canvas.getContext('2d');
 
